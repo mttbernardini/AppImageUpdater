@@ -8,8 +8,8 @@ SYSTEMD_DIR = ~/.local/share/systemd/user
 
 install:
 	install -d $(APPS_DIR) $(SYSTEMD_DIR)
-	install -t $(APPS_DIR) $(NAME).sh
-	install -t $(SYSTEMD_DIR) $(NAME).service $(NAME).timer
+	install -m 755 -t $(APPS_DIR) $(NAME).sh
+	install -m 644 -t $(SYSTEMD_DIR) $(NAME).service $(NAME).timer
 	systemctl --user daemon-reload
 	systemctl --user enable $(NAME).timer
 
