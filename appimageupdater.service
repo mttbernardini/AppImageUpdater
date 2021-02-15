@@ -5,4 +5,4 @@ Description=Update AppImages in ~/Applications
 
 [Service]
 Type=idle
-ExecStart=%h/Applications/updater.sh -n
+ExecStart=%h/Applications/appimageupdater.sh -n
