@@ -1,0 +1,11 @@
+# ~/.local/share/systemd/user/appimageupdater.timer
+
+[Unit]
+Description=Update AppImages daily
+
+[Timer]
+OnCalendar=*-*-* 00:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

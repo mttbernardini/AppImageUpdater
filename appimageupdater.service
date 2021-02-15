@@ -1,0 +1,8 @@
+# ~/.local/share/systemd/user/appimageupdater.service
+
+[Unit]
+Description=Update AppImages in ~/Applications
+
+[Service]
+Type=idle
+ExecStart=%h/Applications/updater.sh -n
