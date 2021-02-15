@@ -14,3 +14,8 @@ git clone https://gist.github.com/0c63d1fc41d081033f2235f40fae6680.git appimageu
 cd appimageupdater
 make install
 ```
+
+---
+© 2021 Matteo Bernardini
+
+This gist is licensed under the MIT License.
