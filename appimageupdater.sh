@@ -34,7 +34,7 @@ updated=0
 
 # ==== MAIN CODE ====
 
-trap "echo -e '\e[31m# Aborted.\e[0m'" SIGINT
+trap "echo -e '\e[31m# Aborted.\e[0m'; exit 1" SIGINT
 
 cd ~/Applications
 

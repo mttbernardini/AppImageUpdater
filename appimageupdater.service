@@ -2,6 +2,8 @@
 
 [Unit]
 Description=Update AppImages in ~/Applications
+#ConditionACPower=true # uncomment if you want to perform updates on AC power only
+After=network.target network-online.target
 
 [Service]
 Type=idle

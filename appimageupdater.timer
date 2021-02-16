@@ -4,7 +4,8 @@
 Description=Update AppImages daily
 
 [Timer]
-OnCalendar=*-*-* 00:00:00
+OnCalendar=*-*-* 06,18:00
+RandomizedDelaySec=12h
 Persistent=true
 
 [Install]
