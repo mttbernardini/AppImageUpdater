@@ -3,6 +3,11 @@
 
 # ==== SETUP ====
 
+# change if necessary
+TRACKED_DIRS=("/Applications" "$HOME/Applications")
+AIU_NAME="appimageupdatetool-*.AppImage"
+
+# internal constants
 read -r -d '' USAGE_STRING << 'EOF'
 Usage: %s [-vh]
   -n  send a notification after updates with the number of
@@ -10,10 +15,10 @@ Usage: %s [-vh]
   -v  verbose mode (show output from appimageupdatetool-*.AppImage)
   -h  displays this help and exits
 EOF
-
 NOTIFY=""
 VERBOSE=""
 
+# flags management
 while getopts 'nvh' flag; do
 	case "${flag}" in
 		n) NOTIFY="1" ;;
@@ -23,56 +28,73 @@ while getopts 'nvh' flag; do
 	esac
 done
 
-if [ $VERBOSE ]; then
-	out="/dev/stdout"
-else
-	out="/dev/null"
-fi
-
-updated=0
-tracked_dirs=("/Applications" "~/Applications") # change if necessary
-aiu_name="appimageupdatetool-*.AppImage"
-aiu_exe=""
 
 # ==== MAIN CODE ====
 
-trap "echo -e '\e[31m# Aborted.\e[0m'; exit 1" SIGINT
+shopt -s nullglob # prevents literal globs in case there are no matches
+trap 'echo -e "\e[31m# Aborted, updated $updated AppImages.\e[0m"; exit 1' SIGINT
 
-for d in ${tracked_dirs[*]}; do
-	if [ -x "$d/$aiu_name" ]; then
-		aiu_exe = "$d/$aiu_name"
+out=$( [ $VERBOSE ] && echo "/dev/stdout" || echo "/dev/null" )
+updated=0
+aiu_exe=""
+
+# update logic
+function handle_update() {
+	app=$1
+
+	[ ! -w "$app" ] && prepend="pkexec"
+
+	$prepend $aiu_exe -O "$app" &> $out
+	success=$?
+
+	if [ $success -eq 0 ]; then
+		echo -e "\e[32m# Successfully updated $app\e[0m"
+		# NB: sometimes old AppImages are not renamed to .zs-old, so the user needs to manually delete them.
+		#     I could patch this, but not sure how to do it in a reliable way.
+		$prepend gio trash -f "$app.zs-old"
+		((updated+=1))
+	else
+		echo -e "\e[31m# Something went wrong while updating $app (exit code $success)\e[0m"
+		$prepend gio tash -f "$app.part" # remove possible leftovers
+	fi
+}
+
+# lookup appimageupdatetool
+for d in ${TRACKED_DIRS[*]}; do
+	if [ -x $d/$AIU_NAME ]; then
+		aiu_exe=$d/$AIU_NAME
 		break
 	fi
 done
 
 if [ ! $aiu_exe ]; then
-	echo -e "\e[31m# appimageupdatetool not found in ${tracked_dirs[*]}, or missing x permission. Cannot check updates.\e[0m"
+	echo -e "\e[31m# appimageupdatetool not found in ${TRACKED_DIRS[*]}, or missing x permission. Cannot check updates.\e[0m"
 	exit 1
 fi
 
-for d in tracked_dirs; do
+# iterate over appimages
+for d in ${TRACKED_DIRS[*]}; do
 
-	pushd "$d"
+	pushd $d > /dev/null
 
+	# assumption: appimages are readable by us
 	for i in $(echo "*.AppImage" "*.appimage"); do
 		echo -e "\e[34m# Checking updates for $i\e[0m"
-		"$aiu_exe" -j "$i" &> $out
+		$aiu_exe -j "$i" &> $out
 		updatable=$?
+		[ $VERBOSE ] && echo "" # sometimes $aiu_exec doesn't print trailing \n
 		case $updatable in
-			0) echo -e "\e[1;33m# No updates available for $i";;
-			1) "$aiu_exe" "$i" &> $out # not using -r flag because is broken (deletes new appimage instead of old one)
-			   echo -e "\e[32m# Successfully updated $i"; ((updated+=1)) ;;
-			*) echo -e "\e[31m# Cannot check updates for $i (exit code $updatable)";;
+			0) echo -e "\e[1;33m# No updates available for $i\e[0m" ;;
+			1) handle_update "$i" ;;
+			*) echo -e "\e[31m# Cannot check updates for $i (exit code $updatable)\e[0m" ;;
 		esac
-		# NB: sometimes old AppImages are not renamed to .zs-old, so you need to manually delete them.
-		#     I could patch this, but not sure how to do it in a reliable way.
-		gio trash -f "$i.zs-old"
 	done
 
-	popd
+	popd > /dev/null
 
 done
 
+# final prints
 echo -e "\e[34m# Done, updated $updated AppImages.\e[0m"
 
 if [ $NOTIFY ] && [ $updated -gt 0 ]; then
