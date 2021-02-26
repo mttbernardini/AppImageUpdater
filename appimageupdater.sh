@@ -42,20 +42,19 @@ aiu_exe=""
 function handle_update() {
 	app=$1
 
-	[ ! -w "$app" ] && prepend="pkexec"
+	# TODO: elevating the whole $aiu_exe is NOT A GOOD IDEA
+	#       uncomment this at your own risk! (a better idea might be to use ACL)
+
+	#[ ! -w "$app" ] && prepend="pkexec"
 
 	$prepend $aiu_exe -O "$app" &> $out
 	success=$?
 
 	if [ $success -eq 0 ]; then
 		echo -e "\e[32m# Successfully updated $app\e[0m"
-		# NB: sometimes old AppImages are not renamed to .zs-old, so the user needs to manually delete them.
-		#     I could patch this, but not sure how to do it in a reliable way.
-		$prepend gio trash -f "$app.zs-old"
 		((updated+=1))
 	else
 		echo -e "\e[31m# Something went wrong while updating $app (exit code $success)\e[0m"
-		$prepend gio tash -f "$app.part" # remove possible leftovers
 	fi
 }
 

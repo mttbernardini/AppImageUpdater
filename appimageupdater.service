@@ -1,7 +1,7 @@
 # ~/.local/share/systemd/user/appimageupdater.service
 
 [Unit]
-Description=Update AppImages in ~/Applications
+Description=Update AppImages in monitored places
 #ConditionACPower=true # uncomment if you want to perform updates on AC power only
 After=network.target network-online.target
 
