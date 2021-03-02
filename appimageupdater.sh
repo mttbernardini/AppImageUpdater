@@ -31,7 +31,6 @@ done
 
 # ==== MAIN CODE ====
 
-shopt -s nullglob # prevents literal globs in case there are no matches
 trap 'echo -e "\e[31m# Aborted, updated $updated AppImages.\e[0m"; exit 1' SIGINT
 
 out=$( [ $VERBOSE ] && echo "/dev/stdout" || echo "/dev/null" )
@@ -77,9 +76,10 @@ fi
 # iterate over appimages
 for d in ${TRACKED_DIRS[*]}; do
 
-	pushd $d > /dev/null
+	[ ! -x $d ] && continue
+	cd $d
 
-	# assumption: appimages are readable by us
+	shopt -s nullglob # prevents literal globs in case there are no matches
 	for i in $(echo "*.AppImage" "*.appimage"); do
 		echo -e "\e[34m# Checking updates for $i\e[0m"
 		$aiu_exe -j "$i" &> $out
@@ -91,8 +91,6 @@ for d in ${TRACKED_DIRS[*]}; do
 			*) echo -e "\e[31m# Cannot check updates for $i (exit code $updatable)\e[0m" ;;
 		esac
 	done
-
-	popd > /dev/null
 
 done
 
