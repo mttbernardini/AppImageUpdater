@@ -31,7 +31,8 @@ done
 
 # ==== MAIN CODE ====
 
-trap 'echo -e "\e[31m# Aborted, updated $updated AppImages.\e[0m"; exit 1' SIGINT
+tmpdir=$(mktemp -d)
+trap 'rm -rf $tmpdir; echo -e "\e[31m# Aborted, updated $updated AppImages.\e[0m"; exit 1' SIGINT
 
 out=$( [ $VERBOSE ] && echo "/dev/stdout" || echo "/dev/null" )
 updated=0
@@ -40,21 +41,22 @@ aiu_exe=""
 # update logic
 function handle_update() {
 	app=$1
+	elevate=""
 
-	# TODO: elevating the whole $aiu_exe is NOT A GOOD IDEA
-	#       uncomment this at your own risk! (a better idea might be to use ACL
-	#       or setting setting /Applications under your ownership)
+	# work on a temp dir link to avoid permission issues and clobbering with temp files
+	ln -t "$tmpdir" "$app"
+	pushd $tmpdir > /dev/null
 
-	#[ ! -w "$app" ] && prepend="pkexec"
-
-	$prepend $aiu_exe -O "$app" &> $out
+	# nb: -O doesn't actually "overwrite", but rather replaces the file (i.e. original file is unlinked)
+	$aiu_exe -O "$app" &> $out
 	success=$?
+	popd > /dev/null
 
 	if [ $success -eq 0 ]; then
+		[ ! -w . ] && elevate="pkexec" # in case we don't have write access to the original directory
+		$elevate mv -ft . "$tmpdir/$app"
 		echo -e "\e[32m# Successfully updated $app\e[0m"
 		((updated+=1))
-		# see https://github.com/AppImage/AppImageUpdate/issues/14
-		[ -f "$app.zs-old" ] && $prepend rm -f "$app.zs-old"
 	else
 		echo -e "\e[31m# Something went wrong while updating $app (exit code $success)\e[0m"
 	fi
@@ -94,7 +96,8 @@ for d in ${TRACKED_DIRS[*]}; do
 
 done
 
-# final prints
+# final stuff
+rm -rf $tmpdir
 echo -e "\e[34m# Done, updated $updated AppImages.\e[0m"
 
 if [ $NOTIFY ] && [ $updated -gt 0 ]; then
