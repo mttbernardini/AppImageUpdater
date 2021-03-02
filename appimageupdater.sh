@@ -43,7 +43,8 @@ function handle_update() {
 	app=$1
 
 	# TODO: elevating the whole $aiu_exe is NOT A GOOD IDEA
-	#       uncomment this at your own risk! (a better idea might be to use ACL)
+	#       uncomment this at your own risk! (a better idea might be to use ACL
+	#       or setting setting /Applications under your ownership)
 
 	#[ ! -w "$app" ] && prepend="pkexec"
 
@@ -53,6 +54,8 @@ function handle_update() {
 	if [ $success -eq 0 ]; then
 		echo -e "\e[32m# Successfully updated $app\e[0m"
 		((updated+=1))
+		# see https://github.com/AppImage/AppImageUpdate/issues/14
+		[ -f "$app.zs-old" ] && $prepend rm -f "$app.zs-old"
 	else
 		echo -e "\e[31m# Something went wrong while updating $app (exit code $success)\e[0m"
 	fi
