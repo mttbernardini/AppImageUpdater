@@ -1,6 +1,6 @@
 # AppImage updater with daily cronjob
 
-A simple bash script to update all AppImages under *~/Applications*,
+A simple bash script to update all AppImages under *~/Applications* (and possibly */Applications*),
 using [`appimageupdatetool`](https://github.com/AppImage/AppImageUpdate).
 
 A systemd timer is provided to run the script daily.
@@ -10,7 +10,7 @@ A systemd timer is provided to run the script daily.
 Clone this repo and run the makefile, 3 lines:
 
 ```sh
-git clone https://gist.github.com/0c63d1fc41d081033f2235f40fae6680.git appimageupdater
+git clone https://github.com/mttbernardini/appimageupdater
 cd appimageupdater
 make install
 ```
@@ -18,4 +18,4 @@ make install
 ---
 © 2021 Matteo Bernardini
 
-This gist is licensed under the MIT License.
+This project is licensed under the MIT License.
