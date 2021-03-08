@@ -44,7 +44,7 @@ function handle_update() {
 	elevate=""
 
 	# work on a temp dir link to avoid permission issues and clobbering with temp files
-	ln -t "$tmpdir" "$app"
+	ln -srt "$tmpdir" "$app"
 	pushd $tmpdir > /dev/null
 
 	# nb: -O doesn't actually "overwrite", but rather replaces the file (i.e. original file is unlinked)
