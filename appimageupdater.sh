@@ -1,5 +1,5 @@
 #!/bin/bash
-# move this file to ~/Applications/appimageupdater.sh
+# move this file to ~/.local/bin/appimageupdater.sh
 
 # ==== SETUP ====
 
