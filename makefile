@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 
-NAME        = appimageupdater
+NAME        = appimage-updater
 BIN_DIR     = ~/.local/bin
 SYSTEMD_DIR = ~/.local/share/systemd/user
 

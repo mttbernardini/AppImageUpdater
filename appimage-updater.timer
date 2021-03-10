@@ -1,5 +1,3 @@
-# ~/.local/share/systemd/user/appimageupdater.timer
-
 [Unit]
 Description=Update AppImages daily
 
