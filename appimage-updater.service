@@ -5,4 +5,4 @@ After=network.target network-online.target
 
 [Service]
 Type=idle
-ExecStart=%h/.local/bin/appimageupdater.sh -n
+ExecStart=%h/.local/bin/appimage-updater.sh -n
