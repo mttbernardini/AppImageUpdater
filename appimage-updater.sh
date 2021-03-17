@@ -59,7 +59,7 @@ function handle_update() {
 
 	if [ "$success" -eq 0 ]; then
 		[ ! -w . ] && elevate="pkexec" # in case we don't have write access to the original directory
-		"$elevate" mv -ft . "$tmpdir/$app"
+		$elevate mv -ft . "$tmpdir/$app"
 		echo -e "\e[32m# Successfully updated $app\e[0m"
 		((updated+=1))
 	else
