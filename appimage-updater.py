@@ -5,6 +5,7 @@ from itertools import chain
 from tempfile import TemporaryDirectory
 from sys import exit
 from pathlib import Path
+from shutil import move
 from argparse import ArgumentParser
 from subprocess import run
 
@@ -57,7 +58,7 @@ class AppImageUpdater:
 
 		if check.returncode == 0:
 			try:
-				tmp_app.replace(app)
+				move(tmp_app, app)
 				self._log(f"Successfully updated {app.name}", "ok")
 				self._updated += 1
 			except OSError:
